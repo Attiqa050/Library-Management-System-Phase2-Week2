@@ -1,188 +1,97 @@
-const BASE_URL = "http://localhost:3000";
+const BASE_URL = "http://localhost/LMS_Phase2_week02/api";
 
 
-// ===============================
-// Books API
-// ===============================
+// ================= Books =================
 
-// Get All Books
 async function getBooks() {
-
-    const response = await fetch(`${BASE_URL}/books`);
-    const books = await response.json();
-
-    return books;
+    const response = await fetch(`${BASE_URL}/books.php`);
+    return await response.json();
 }
 
-
-// Add New Book
 async function addBook(book) {
-
-    const response = await fetch(`${BASE_URL}/books`, {
+    const response = await fetch(`${BASE_URL}/books.php`, {
         method: "POST",
-
-        headers: {
-            "Content-Type": "application/json"
-        },
-
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify(book)
     });
-
-    const newBook = await response.json();
-
-    return newBook;
+    return await response.json();
 }
 
-
-// Update Book
-async function updateBook(id, bookData) {
-
-    const response = await fetch(`${BASE_URL}/books/${id}`, {
+async function updateBook(id, book) {
+    const response = await fetch(`${BASE_URL}/books.php?id=${id}`, {
         method: "PATCH",
-
-        headers: {
-            "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify(bookData)
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(book)
     });
-
-    const updatedBook = await response.json();
-
-    return updatedBook;
+    return await response.json();
 }
 
-
-// Delete Book
 async function deleteBook(id) {
-
-    const response = await fetch(`${BASE_URL}/books/${id}`, {
+    return await fetch(`${BASE_URL}/books.php?id=${id}`, {
         method: "DELETE"
     });
-
-    return response;
 }
 
-// ===============================
-// Members API
-// ===============================
 
-// Get All Members
+// ================= Members =================
+
 async function getMembers() {
-
-    const response = await fetch(`${BASE_URL}/members`);
-    const members = await response.json();
-
-    return members;
+    const response = await fetch(`${BASE_URL}/members.php`);
+    return await response.json();
 }
 
-
-// Add New Member
 async function addMember(member) {
-
-    const response = await fetch(`${BASE_URL}/members`, {
+    const response = await fetch(`${BASE_URL}/members.php`, {
         method: "POST",
-
-        headers: {
-            "Content-Type": "application/json"
-        },
-
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify(member)
     });
-
-    const newMember = await response.json();
-
-    return newMember;
+    return await response.json();
 }
 
-
-// Update Member
-async function updateMember(id, memberData) {
-
-    const response = await fetch(`${BASE_URL}/members/${id}`, {
+async function updateMember(id, member) {
+    const response = await fetch(`${BASE_URL}/members.php?id=${id}`, {
         method: "PATCH",
-
-        headers: {
-            "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify(memberData)
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(member)
     });
-
-    const updatedMember = await response.json();
-
-    return updatedMember;
+    return await response.json();
 }
 
-
-// Delete Member
 async function deleteMember(id) {
-
-    const response = await fetch(`${BASE_URL}/members/${id}`, {
+    return await fetch(`${BASE_URL}/members.php?id=${id}`, {
         method: "DELETE"
     });
-
-    return response;
 }
 
-// ===============================
-// Issues API
-// ===============================
 
-// Get All Issues
+// ================= Issues =================
+
 async function getIssues() {
-
-    const response = await fetch(`${BASE_URL}/issues`);
-    const issues = await response.json();
-
-    return issues;
+    const response = await fetch(`${BASE_URL}/issues.php`);
+    return await response.json();
 }
 
-
-// Add New Issue
 async function addIssue(issue) {
-
-    const response = await fetch(`${BASE_URL}/issues`, {
+    const response = await fetch(`${BASE_URL}/issues.php`, {
         method: "POST",
-
-        headers: {
-            "Content-Type": "application/json"
-        },
-
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify(issue)
     });
-
-    const newIssue = await response.json();
-
-    return newIssue;
+    return await response.json();
 }
 
-
-// Update Issue
-async function updateIssue(id, issueData) {
-
-    const response = await fetch(`${BASE_URL}/issues/${id}`, {
+async function updateIssue(id, issue) {
+    const response = await fetch(`${BASE_URL}/issues.php?id=${id}`, {
         method: "PATCH",
-
-        headers: {
-            "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify(issueData)
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(issue)
     });
-
-    const updatedIssue = await response.json();
-
-    return updatedIssue;
+    return await response.json();
 }
 
-
-// Delete Issue
 async function deleteIssue(id) {
-
-    const response = await fetch(`${BASE_URL}/issues/${id}`, {
+    return await fetch(`${BASE_URL}/issues.php?id=${id}`, {
         method: "DELETE"
     });
-
-    return response;
 }

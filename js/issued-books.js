@@ -23,14 +23,8 @@ function calculateFine(dueDateStr, returnDateStr) {
 }
 
 
-// Load Data from API
+// Load Data
 async function loadIssuedBooks() {
-
-    issuedTableBody.innerHTML = `
-        <tr>
-            <td colspan="7">Loading...</td>
-        </tr>
-    `;
 
     try {
 
@@ -42,13 +36,9 @@ async function loadIssuedBooks() {
 
     } catch (error) {
 
-        issuedTableBody.innerHTML = `
-            <tr>
-                <td colspan="7">Cannot reach the server</td>
-            </tr>
-        `;
+        issuedTableBody.innerHTML =
+            `<tr><td colspan="7">Cannot reach the server</td></tr>`;
 
-        console.error(error);
     }
 }
 
@@ -59,16 +49,13 @@ function displayIssuedBooks() {
     issuedTableBody.innerHTML = "";
 
     const activeIssues = issues.filter(function (issue) {
-        return issue.returnDate === "";
+        return issue.returnDate === null || issue.returnDate === "";
     });
 
     if (activeIssues.length === 0) {
 
-        issuedTableBody.innerHTML = `
-            <tr>
-                <td colspan="7">No Issued Books Found</td>
-            </tr>
-        `;
+        issuedTableBody.innerHTML =
+            `<tr><td colspan="7">No Issued Books Found</td></tr>`;
 
         return;
     }
@@ -97,25 +84,12 @@ function displayIssuedBooks() {
                 <td>Rs. ${fine}</td>
                 <td>
                     <button class="btn return-btn"
-                        data-id="${issue.id}">
+                        onclick="returnBook(${issue.id}, this)">
                         Return
                     </button>
                 </td>
             </tr>
         `;
-    });
-
-
-    // Return Button Events
-    const returnButtons =
-        document.querySelectorAll(".return-btn");
-
-    returnButtons.forEach(function (button) {
-
-        button.addEventListener("click", function () {
-            returnBook(button.dataset.id, button);
-        });
-
     });
 }
 
@@ -127,45 +101,27 @@ async function returnBook(issueId, button) {
         return String(item.id) === String(issueId);
     });
 
-    if (!issue) {
-        alert("Issue not found!");
-        return;
-    }
-
     const book = books.find(function (book) {
         return String(book.id) === String(issue.bookId);
     });
 
-    if (!book) {
-        alert("Book not found!");
-        return;
-    }
-
     const today = new Date().toISOString().split("T")[0];
-
     const fine = calculateFine(issue.dueDate, today);
 
-
-    // Double Click Protection
     button.disabled = true;
-    button.innerText = "Returning...";
 
     try {
 
-        // Update Issue
         await updateIssue(issue.id, {
             returnDate: today,
-            fine: fine
+            status: "Returned"
         });
 
-        // Increase Available Copies
         await updateBook(book.id, {
-            availableCopies: book.availableCopies + 1
+            availableCopies: Number(book.availableCopies) + 1
         });
 
-        alert(
-            "Book Returned Successfully!\nFine = Rs. " + fine
-        );
+        alert("Book Returned Successfully!\nFine = Rs. " + fine);
 
         await loadIssuedBooks();
 
@@ -173,14 +129,9 @@ async function returnBook(issueId, button) {
 
         alert("Cannot reach the server");
 
-        console.error(error);
-
-    } finally {
-
-        // Enable Button Again
-        button.disabled = false;
-        button.innerText = "Return";
     }
+
+    button.disabled = false;
 }
 
 
