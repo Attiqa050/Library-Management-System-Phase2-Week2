@@ -1,7 +1,3 @@
-// ===============================
-// Issued Books Page
-// ===============================
-
 const issuedTableBody = document.getElementById("issuedTableBody");
 
 let issues = [];
@@ -9,14 +5,12 @@ let books = [];
 let members = [];
 
 
-// Calculate Fine = Rs. 5 per late day
-function calculateFine(dueDateStr, returnDateStr) {
-
-    const dueDate = new Date(dueDateStr);
-    const returnDate = new Date(returnDateStr);
+// Fine = Rs. 5 per late day
+function calculateFine(dueDate, returnDate) {
 
     const lateDays = Math.floor(
-        (returnDate - dueDate) / (1000 * 60 * 60 * 24)
+        (new Date(returnDate) - new Date(dueDate))
+        / (1000 * 60 * 60 * 24)
     );
 
     return lateDays > 0 ? lateDays * 5 : 0;
@@ -27,18 +21,15 @@ function calculateFine(dueDateStr, returnDateStr) {
 async function loadIssuedBooks() {
 
     try {
-
         issues = await getIssues();
         books = await getBooks();
         members = await getMembers();
 
         displayIssuedBooks();
 
-    } catch (error) {
-
+    } catch {
         issuedTableBody.innerHTML =
             `<tr><td colspan="7">Cannot reach the server</td></tr>`;
-
     }
 }
 
@@ -48,29 +39,27 @@ function displayIssuedBooks() {
 
     issuedTableBody.innerHTML = "";
 
-    const activeIssues = issues.filter(function (issue) {
-        return issue.returnDate === null || issue.returnDate === "";
-    });
+    const activeIssues = issues.filter(issue =>
+        issue.returnDate === null || issue.returnDate === ""
+    );
 
     if (activeIssues.length === 0) {
-
         issuedTableBody.innerHTML =
             `<tr><td colspan="7">No Issued Books Found</td></tr>`;
-
         return;
     }
 
     const today = new Date().toISOString().split("T")[0];
 
-    activeIssues.forEach(function (issue) {
+    activeIssues.forEach(issue => {
 
-        const book = books.find(function (book) {
-            return String(book.id) === String(issue.bookId);
-        });
+        const book = books.find(book =>
+            String(book.id) === String(issue.bookId)
+        );
 
-        const member = members.find(function (member) {
-            return String(member.id) === String(issue.memberId);
-        });
+        const member = members.find(member =>
+            String(member.id) === String(issue.memberId)
+        );
 
         const fine = calculateFine(issue.dueDate, today);
 
@@ -88,8 +77,7 @@ function displayIssuedBooks() {
                         Return
                     </button>
                 </td>
-            </tr>
-        `;
+            </tr>`;
     });
 }
 
@@ -97,13 +85,9 @@ function displayIssuedBooks() {
 // Return Book
 async function returnBook(issueId, button) {
 
-    const issue = issues.find(function (item) {
-        return String(item.id) === String(issueId);
-    });
-
-    const book = books.find(function (book) {
-        return String(book.id) === String(issue.bookId);
-    });
+    const issue = issues.find(item =>
+        String(item.id) === String(issueId)
+    );
 
     const today = new Date().toISOString().split("T")[0];
     const fine = calculateFine(issue.dueDate, today);
@@ -117,23 +101,16 @@ async function returnBook(issueId, button) {
             status: "Returned"
         });
 
-        await updateBook(book.id, {
-            availableCopies: Number(book.availableCopies) + 1
-        });
-
         alert("Book Returned Successfully!\nFine = Rs. " + fine);
 
         await loadIssuedBooks();
 
-    } catch (error) {
-
+    } catch {
         alert("Cannot reach the server");
-
     }
 
     button.disabled = false;
 }
 
 
-// Load Page
 loadIssuedBooks();

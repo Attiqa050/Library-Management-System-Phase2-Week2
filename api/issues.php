@@ -6,7 +6,7 @@ header("Content-Type: application/json");
 require_once "../config/db.php";
 
 
-// GET - Read Issues
+// GET
 if ($_SERVER["REQUEST_METHOD"] === "GET") {
 
     $result = $conn->query("SELECT * FROM issues ORDER BY id");
@@ -21,7 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
 }
 
 
-// POST - Add Issue
+// POST - Issue Book
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $data = json_decode(file_get_contents("php://input"), true);
@@ -31,6 +31,28 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $issueDate = $data["issueDate"];
     $dueDate = $data["dueDate"];
 
+    // Check available copies
+    $stmt = $conn->prepare(
+        "SELECT availableCopies FROM books WHERE id=?"
+    );
+
+    $stmt->bind_param("i", $bookId);
+    $stmt->execute();
+
+    $book = $stmt->get_result()->fetch_assoc();
+
+    if (!$book || $book["availableCopies"] <= 0) {
+
+        http_response_code(400);
+
+        echo json_encode([
+            "message" => "Book not available"
+        ]);
+
+        exit();
+    }
+
+    // Add Issue
     $status = "Issued";
 
     $stmt = $conn->prepare(
@@ -50,14 +72,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $stmt->execute();
 
+    // Reduce available copies
+    $stmt = $conn->prepare(
+        "UPDATE books
+         SET availableCopies = availableCopies - 1
+         WHERE id=?"
+    );
+
+    $stmt->bind_param("i", $bookId);
+    $stmt->execute();
+
     echo json_encode([
         "id" => $conn->insert_id,
-        "bookId" => $bookId,
-        "memberId" => $memberId,
-        "issueDate" => $issueDate,
-        "dueDate" => $dueDate,
-        "returnDate" => null,
-        "status" => $status
+        "message" => "Book issued successfully"
     ]);
 }
 
@@ -69,30 +96,45 @@ if ($_SERVER["REQUEST_METHOD"] === "PATCH") {
     $data = json_decode(file_get_contents("php://input"), true);
 
     $returnDate = $data["returnDate"];
-    $status = $data["status"];
 
+    // Find issued book
     $stmt = $conn->prepare(
-        "UPDATE issues
-        SET returnDate=?, status=?
-        WHERE id=?"
+        "SELECT bookId, status FROM issues WHERE id=?"
     );
 
-    $stmt->bind_param(
-        "ssi",
-        $returnDate,
-        $status,
-        $id
-    );
-
+    $stmt->bind_param("i", $id);
     $stmt->execute();
 
+    $issue = $stmt->get_result()->fetch_assoc();
+
+    if ($issue && $issue["status"] !== "Returned") {
+
+        $stmt = $conn->prepare(
+            "UPDATE issues
+             SET returnDate=?, status='Returned'
+             WHERE id=?"
+        );
+
+        $stmt->bind_param("si", $returnDate, $id);
+        $stmt->execute();
+
+        $stmt = $conn->prepare(
+            "UPDATE books
+             SET availableCopies = availableCopies + 1
+             WHERE id=?"
+        );
+
+        $stmt->bind_param("i", $issue["bookId"]);
+        $stmt->execute();
+    }
+
     echo json_encode([
-        "message" => "Issue updated successfully"
+        "message" => "Book returned successfully"
     ]);
 }
 
 
-// DELETE - Delete Issue
+// DELETE
 if ($_SERVER["REQUEST_METHOD"] === "DELETE") {
 
     $id = $_GET["id"];
@@ -110,5 +152,3 @@ if ($_SERVER["REQUEST_METHOD"] === "DELETE") {
 }
 
 $conn->close();
-
-?>

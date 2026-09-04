@@ -65,15 +65,6 @@ issueForm.addEventListener("submit", async function (event) {
         return;
     }
 
-    const book = books.find(
-        book => String(book.id) === String(bookId)
-    );
-
-    if (book.availableCopies <= 0) {
-        alert("Book not available!");
-        return;
-    }
-
     try {
 
         await addIssue({
@@ -81,10 +72,6 @@ issueForm.addEventListener("submit", async function (event) {
             memberId: memberId,
             issueDate: issueDate.value,
             dueDate: dueDate.value
-        });
-
-        await updateBook(bookId, {
-            availableCopies: Number(book.availableCopies) - 1
         });
 
         alert("Book issued successfully!");
