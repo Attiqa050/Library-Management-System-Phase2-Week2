@@ -1,144 +1,128 @@
+# 📚 Library Management System – Phase 2 Week 2
 
-# 📚 Library Management System
+A simple Library Management System developed using **HTML, CSS, JavaScript, PHP, and MySQL**.
 
-A simple Library Management System developed using **HTML, CSS, JavaScript, and JSON Server**.
-
-The system manages books, members, book issuing, returns, and overdue fines using a REST API.
+In Week 2, the frontend was connected to a custom **PHP API with MySQL**. Librarian authentication, protected API routes, and server-side book availability management were also implemented.
 
 ## Features
 
 - Add, view, search, edit, and delete books
 - Add, view, edit, and delete members
 - Issue and return books
-- Automatically manage available book copies
-- Calculate overdue fines
-- Prevent issuing books when no copies are available
-- Prevent deleting currently issued books or members
-- Loading, empty, and server error states
-- Double-click protection during requests
+- Automatically set the due date to 14 days
+- Calculate overdue fine at **Rs. 5 per late day**
+- Librarian signup, login, and logout
+- Password hashing using `password_hash()`
+- Session-based authentication
+- Protected API routes
+- Server-side `availableCopies` management
+- Prevent issuing a book when no copies are available
 
 ## Technologies Used
 
 - HTML
 - CSS
 - JavaScript
-- JSON Server
-- REST API
-- VS Code Live Server
-
-## Project Structure
-
-- `html/` — HTML pages
-- `css/` — Stylesheet
-- `js/` — JavaScript files
-- `js/api.js` — Shared API functions
-- `db.json` — Books, members, and issues data
-- `README.md` — Project documentation
-
-All network requests are handled through the shared `js/api.js` file.  
-The project does not use `localStorage` for library data.
-
-## How to Run the Project
-
-### 1. Open the Project
-
-Open the complete project folder in **Visual Studio Code**.
-
-### 2. Install JSON Server
-
-Open the VS Code terminal and run:
-
-```bash
-npm install -g json-server
-```
-
-### 3. Start JSON Server
-
-Make sure the terminal is opened in the project folder where `db.json` is located.
-
-Run:
-
-```bash
-npx json-server db.json --port 3000
-```
-
-Keep this terminal running while using the project.
-
-The API will run at:
-
-`http://localhost:3000`
-
-Main API endpoints:
-
-- `http://localhost:3000/books`
-- `http://localhost:3000/members`
-- `http://localhost:3000/issues`
-
-### 4. Start the Frontend
-
-Open `home.html` from the `html` folder using **Live Server**.
-
-Do not open the HTML files directly using the `file://` protocol. The project should be served through Live Server so the relative CSS and JavaScript paths work correctly.
-
-Keep both **JSON Server and Live Server running** while using the application.
-
-## Network Handling
-
-The application uses `async/await` and `try/catch` to handle API requests.
-
-While data is being fetched, the table shows `Loading...`.
-
-When JSON Server is running normally, local API requests are very fast. Because of this, the `Loading...` message may disappear too quickly to notice.
-
-If JSON Server is stopped or unavailable, the application displays `Cannot reach the server` instead of silently failing.
-
-This can be tested by stopping JSON Server with **Ctrl + C** and refreshing the page.
-
-If there is no data, messages such as `No books added yet`, `No members added yet`, or `No Issued Books Found` are displayed.
-
-## Double-Click Protection
-
-Submit buttons are temporarily disabled while a request is running. This prevents duplicate records if the user clicks the button multiple times.
-
-Because local API requests are usually very fast, temporary button text such as `Adding...` may only appear briefly.
-
-## Book Issue and Return
-
-When a book is issued:
-
-- An issue record is created through the API.
-- The book's `availableCopies` decreases by 1.
-- If no copies are available, another issue attempt is refused.
-
-Books have a **14-day borrowing period**.
-
-After the due date:
-
-**Fine = Late Days × Rs. 5**
-
-If the book is returned on or before the due date, the fine is **Rs. 0** and never becomes negative.
-
-When a book is returned, its `availableCopies` increases by 1.
-
-## Edit and Delete
-
-Books and members can be edited and deleted.
-
-A confirmation dialog is displayed before deletion.
-
-- A book cannot be deleted while it is currently issued.
-- A member cannot be deleted while they currently have an issued book.
+- PHP
+- MySQL
+- Fetch API
+- XAMPP
 
 ## Database
 
-The application stores data in `db.json` using three resources:
+Database name:
 
-- `books`
-- `members`
-- `issues`
+```text
+library_db
+```
 
-Sample book and member records are included for demonstration.
+Tables:
 
-## Author
+```text
+users
+books
+members
+issues
+```
+
+## How to Run
+
+1. Install and open **XAMPP**.
+
+2. Start **Apache** and **MySQL**.
+
+3. Place the project folder inside:
+
+```text
+C:\xampp\htdocs\LMS_Phase2_week02
+```
+
+4. Open **phpMyAdmin** and create a database named:
+
+```text
+library_db
+```
+
+5. Import the provided SQL file:
+
+```text
+library_db.sql
+```
+
+6. Check the database connection settings in:
+
+```text
+config/db.php
+```
+
+The project currently uses MySQL port **3307**.
+
+7. Open the Signup page:
+
+```text
+http://localhost/LMS_Phase2_week02/signup.php
+```
+
+8. Create a librarian account, then log in using the registered email and password:
+
+```text
+http://localhost/LMS_Phase2_week02/login.php
+```
+
+9. After login, use the system to manage books, members, book issues, returns, and fines.
+
+## Main API Files
+
+```text
+api/books.php
+api/members.php
+api/issues.php
+api/auth.php
+```
+
+The frontend communicates with the PHP backend using the JavaScript **Fetch API**.
+
+## Important Rules
+
+- Due date = **Issue Date + 14 days**
+- Fine = **Rs. 5 × late days**
+- Issue book → `availableCopies - 1`
+- Return book → `availableCopies + 1`
+- If `availableCopies = 0`, the server rejects the issue request
+- Logged-out API requests return **401 Unauthorized**
+
+## Testing
+
+Successfully tested:
+
+- Signup, login, and logout
+- Password hashing in MySQL
+- Books, members, and issues APIs
+- Issue and return functionality
+- Fine calculation
+- API authentication
+- Direct API over-issue prevention
+
+## Developer
 
 **Attiqa**
